@@ -12,6 +12,7 @@ public:
         featurePoolSize = 400;
         lambda = 0.1;
     }
+private:
     size_t cascadeDepth;
     size_t treeDepth;
     size_t numTreesPerCascadeLevel;
