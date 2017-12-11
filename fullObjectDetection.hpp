@@ -1,11 +1,13 @@
 #pragma once
 
 #include <vector>
+#include "point.hpp"
+#include "rectangle.hpp"
 
 class FullObjectDetection {
 public:
     FullObjectDetection() {}
 private:
-    std::vector<size_t> rect;
-    std::vector<std::vector<double>> parts;
+    std::vector<Rectangle> rect;
+    std::vector<Point2d<double>> parts;
 };

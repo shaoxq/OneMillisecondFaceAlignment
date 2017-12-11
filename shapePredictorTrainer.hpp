@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "rectangle.hpp"
 
 class ShapePredictorTrainer {
 public:
@@ -25,7 +26,7 @@ private:
 class trainingSample {
 public:
     size_t imageIdx;
-    std::vector<size_t> rect;
+    std::vector<Rectangle> rect;
     std::vector<float> targetShape;
     std::vector<float> present;
     std::vector<float> currentShape;
