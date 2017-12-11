@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
 
-class ShapePredictorTrainer{
+class ShapePredictorTrainer {
 public:
-    ShapePredictorTrainer(){
+    ShapePredictorTrainer() {
         cascadeDepth = 10;
         treeDepth = 4;
         numTreesPerCascadeLevel = 500;
@@ -20,4 +20,15 @@ private:
     size_t oversamplingAmount;
     size_t featurePoolSize;
     double lambda;
+};
+
+class trainingSample {
+public:
+    size_t imageIdx;
+    std::vector<size_t> rect;
+    std::vector<float> targetShape;
+    std::vector<float> present;
+    std::vector<float> currentShape;
+    std::vector<float> diffShape;
+    std::vector<unsigned char> featurePixelValues;
 };
