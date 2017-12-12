@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "rectangle.hpp"
+#include "fullObjectDetection.hpp"
 
 class ShapePredictorTrainer {
 public:
@@ -13,6 +14,7 @@ public:
         featurePoolSize = 400;
         lambda = 0.1;
     }
+    void train(std::vector<Image>& images, std::vector<fullObjectDetection>& objects);
 private:
     size_t cascadeDepth;
     size_t treeDepth;
