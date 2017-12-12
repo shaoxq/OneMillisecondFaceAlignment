@@ -29,6 +29,8 @@ public:
             }
         }
 
+        assert(numParts != 0 );
+
         
 
     }
