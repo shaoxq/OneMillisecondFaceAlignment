@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <cassert>
 #include "rectangle.hpp"
 #include "fullObjectDetection.hpp"
 
@@ -14,7 +15,23 @@ public:
         featurePoolSize = 400;
         lambda = 0.1;
     }
-    void train(std::vector<Image>& images, std::vector<fullObjectDetection>& objects);
+    void train(std::vector<Image>& images, std::vector<fullObjectDetection>& objects) {
+        assert(images.size() == objects.size());
+
+        // check whether all the objects have same number of parts
+        size_t numParts = 0;
+        for (size_t i = 0; i < objects.size(); i++) {
+            if (numParts == 0){
+                numParts = objects.parts.size();
+                assert(numParts != 0);
+            } else {
+                assert(objects.parts.size() == numParts);
+            }
+        }
+
+        
+
+    }
 private:
     size_t cascadeDepth;
     size_t treeDepth;
