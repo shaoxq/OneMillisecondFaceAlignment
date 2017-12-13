@@ -7,7 +7,6 @@
 class FullObjectDetection {
 public:
     FullObjectDetection() {}
-private:
     std::vector<Rectangle> rect;
     std::vector<Point2d<double>> parts;
 };
