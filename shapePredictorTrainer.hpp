@@ -32,20 +32,87 @@ public:
         assert(numParts != 0);
 
         std::vector<TrainingSample> samples;
-        std::vector<Point2d<float>> initialShape;
+        std::vector<Point2d<float>> initialShape = populateTrainingSampleShapes(objects, samples);
         std::vector<std::vector<Point2d>> pixelCoordinates;
     }
 
     std::vector<Point2d<float>> populateTrainingSampleShapes(const std::vector<fullObjectDetection>& objects, std::vector<TrainingSample>& samples) const {
         std::vector<Point2d<float>> meanShape(objects[0].parts.size());
 
+        // first fill out the target shapes
         for (size_t i = 0; i < objects.size(); i++) {
             TrainingSample sample;
             sample.imageIdx = i;
             sample.rect = objects[i].rect;
+
+            std::vector<Point2d<double>> sampleRect(4);
+            sampleRect[0].x = sample.rect.leftTop.x;
+            sampleRect[0].y = sample.rect.leftTop.y;
+            sampleRect[1].x = sample.rect.rightBottom.x;
+            sampleRect[1].y = sample.rect.leftTop.y;
+            sampleRect[2].x = sample.rect.leftTop.x;
+            sampleRect[2].y = sample.rect.rightBottom.y;
+            sampleRect[3].x = sample.rect.rightBottom.x;
+            sampleRect[3].y = sample.rect.rightBottom.y;
+
+            std::vector<Point2d<double>> unitRect(4);
+            unitRect[0].x = 0.0;
+            unitRect[0].y = 0.0;
+            unitRect[1].x = 1.0;
+            unitRect[1].y = 0.0;
+            unitRect[2].x = 0.0;
+            unitRect[2].y = 1.0;
+            unitRect[3].x = 1.0;
+            unitRect[3].y = 1.0;
+
+            PointTransformAffine tform = findAffinTransform(sampleRect, unitRect);
+            for (size_t j = 0; j < objects[i].parts.size(); j++) {
+                sample.targetShape[j].x = tform.s * (tform.m[0][0] * objects[i].parts[j].x + tform[0][1] * objects[i].parts[j].y) + tform.b[0];
+                sample.targetShape[j].y = tform.s * (tform.m[1][0] * objects[i].parts[j].x + tform[1][1] * objects[i].parts[j].y) + tformb[1];
+            }
+
             for (size_t j = 0; j < oversamplingAmount; j++) {
+                samples.push_back(sample);
+            }
+
+            for (size_t j = 0; j < objects[i].parts.size(); j++) {
+                meanShape[j].x += sample.targetShape[j].x;
+                meanShape[j].y += sample.targetShape[j].y;
             }
         }
+
+        for (size_t j = 0; j < objects[i].parts.size(); j++) {
+            meanShape[j].x /= objects.size();
+            meanShape[j].y /= objects.size();
+        }
+
+        // new go pick random initial shapes
+	random_device rnd;
+	mt19937 mt(rnd());
+	uniform_real_distribution<double> norm( 0.0, 1.0 );
+        for (size_t i = 0; i < samples.size(); i++) {
+            if (overSamplingAmount == 0) {
+                samples.currentShape[i] = meanShape;
+            } else {
+                // pick a few samples at random and randomly average them together to make the initial shape
+                double hits = 0;
+                for (size_t j = 0; j < 2; j++) {
+                    size_t rndIdx = mt() % samples.size();
+                    double alpha = norm(mt);
+                    for (size_t k = 0; k < samples[i].currentShape.size(); k++) {
+                        samples[i].currentShape[k].x += alpha * samples[rndIdx].targetShape[k].x;
+                        samples[i].currentShape[k].y += alpha * samples[rndIdx].targetShape[k].y;
+                    }
+                    hits += alpha;
+                }
+	        for (size_t k = 0; k < samples[i].currentShape.size(); k++) {
+                    samples[i].currentShape[k].x /= alpha;
+                    samples[i].currentShape[k].y /= alpha;
+                }
+            }
+        }
+
+        return meanShape;
     }
 
 private:
@@ -60,7 +127,10 @@ private:
 
 class TrainingSample {
 public:
-    TrainingSample() {}
+    TrainingSample() {
+        oversamplingAmount = 0;
+    }
+    size_t oversamplingAmount;
     size_t imageIdx;
     std::vector<Rectangle> rect;
     std::vector<float> targetShape;
