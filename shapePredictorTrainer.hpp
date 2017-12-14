@@ -19,17 +19,22 @@ public:
         assert(images.size() == objects.size());
 
         // check whether all the objects have same number of parts
-        size_t numParts = 0;
+        size_t numParts = objects[0].parts.size();
+        assert(numParts != 0);
+        std::vector<bool> partPresent(objects[0].parts.size(),false);
         for (size_t i = 0; i < objects.size(); i++) {
-            if (numParts == 0){
-                numParts = objects.parts.size();
-                assert(numParts != 0);
-            } else {
-                assert(objects.parts.size() == numParts);
+            assert(objects[i].parts.size() == numParts);
+            for (size_t j = 0; j < objects[i].parts.size(); j++) {
+                if (objects[i].isPresent[j] == true) {
+                    partPresent[j] = true;
+                }
             }
         }
 
         assert(numParts != 0);
+        for (size_t i = 0; i < partPresent.size(); i++) {
+            assert(partPresent[i] == true);
+        }
 
         std::vector<TrainingSample> samples;
         std::vector<Point2d<float>> initialShape = populateTrainingSampleShapes(objects, samples);
@@ -38,6 +43,7 @@ public:
 
     std::vector<Point2d<float>> populateTrainingSampleShapes(const std::vector<fullObjectDetection>& objects, std::vector<TrainingSample>& samples) const {
         std::vector<Point2d<float>> meanShape(objects[0].parts.size());
+        std::vector<size_t> count(objects[0].parts.size(), 0);
 
         // first fill out the target shapes
         for (size_t i = 0; i < objects.size(); i++) {
@@ -65,10 +71,18 @@ public:
             unitRect[3].x = 1.0;
             unitRect[3].y = 1.0;
 
+            // align object's rectangle to unit one
             PointTransformAffine tform = findAffinTransform(sampleRect, unitRect);
             for (size_t j = 0; j < objects[i].parts.size(); j++) {
-                sample.targetShape[j].x = tform.s * (tform.m[0][0] * objects[i].parts[j].x + tform[0][1] * objects[i].parts[j].y) + tform.b[0];
-                sample.targetShape[j].y = tform.s * (tform.m[1][0] * objects[i].parts[j].x + tform[1][1] * objects[i].parts[j].y) + tformb[1];
+                if (objects[i].isPresent[j] == true) {
+                    sample.targetShape[j].x = tform.s * (tform.m[0][0] * objects[i].parts[j].x + tform[0][1] * objects[i].parts[j].y) + tform.b[0];
+                    sample.targetShape[j].y = tform.s * (tform.m[1][0] * objects[i].parts[j].x + tform[1][1] * objects[i].parts[j].y) + tformb[1];
+                    sample.isPresent[j] = true;
+                } else {
+                    sample.targetShape[j].x = 0;
+                    sample.targetShape[j].y = 0;
+                    sample.isPresent[j] = false;
+                }
             }
 
             for (size_t j = 0; j < oversamplingAmount; j++) {
@@ -76,38 +90,50 @@ public:
             }
 
             for (size_t j = 0; j < objects[i].parts.size(); j++) {
-                meanShape[j].x += sample.targetShape[j].x;
-                meanShape[j].y += sample.targetShape[j].y;
+                if (sample.isPresent == true) {
+                    meanShape[j].x += sample.targetShape[j].x;
+                    meanShape[j].y += sample.targetShape[j].y;
+                    count[j]++;
+                }
             }
         }
 
         for (size_t j = 0; j < objects[i].parts.size(); j++) {
-            meanShape[j].x /= objects.size();
-            meanShape[j].y /= objects.size();
+            meanShape[j].x /= count[j];
+            meanShape[j].y /= count[j];
         }
 
         // new go pick random initial shapes
-	random_device rnd;
-	mt19937 mt(rnd());
-	uniform_real_distribution<double> norm( 0.0, 1.0 );
+        random_device rnd;
+        mt19937 mt(rnd());
+        uniform_real_distribution<double> norm( 0.0, 1.0 );
         for (size_t i = 0; i < samples.size(); i++) {
             if (overSamplingAmount == 0) {
                 samples.currentShape[i] = meanShape;
             } else {
                 // pick a few samples at random and randomly average them together to make the initial shape
-                double hits = 0;
-                for (size_t j = 0; j < 2; j++) {
+                std::vector<double> hits(samples[i].targetShape.size(),0);
+                bool isHitAll = false;
+                int itr = 0;
+                while (isHitAll == false || itr < 2) {
+                    isHitAll = true;
                     size_t rndIdx = mt() % samples.size();
-                    double alpha = norm(mt);
+                    double alpha = norm(mt) + 0.1;
                     for (size_t k = 0; k < samples[i].currentShape.size(); k++) {
                         samples[i].currentShape[k].x += alpha * samples[rndIdx].targetShape[k].x;
                         samples[i].currentShape[k].y += alpha * samples[rndIdx].targetShape[k].y;
+                        if (samples[rndIdx].isPresent == true) {
+                            hits[k] += alpha;
+                        }
+                        if (hits[k] < 0.1) {
+                            isHitAll = false;
+                        }
                     }
-                    hits += alpha;
+                    itr++;
                 }
 	        for (size_t k = 0; k < samples[i].currentShape.size(); k++) {
-                    samples[i].currentShape[k].x /= alpha;
-                    samples[i].currentShape[k].y /= alpha;
+                    samples[i].currentShape[k].x /= hits[k];
+                    samples[i].currentShape[k].y /= hits[k];
                 }
             }
         }
@@ -134,7 +160,8 @@ public:
     size_t imageIdx;
     std::vector<Rectangle> rect;
     std::vector<float> targetShape;
-    std::vector<float> present;
+    std::vector<bool> isPresent;
+
     std::vector<float> currentShape;
     std::vector<float> diffShape;
     std::vector<unsigned char> featurePixelValues;

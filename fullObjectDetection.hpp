@@ -9,4 +9,5 @@ public:
     FullObjectDetection() {}
     std::vector<Rectangle> rect;
     std::vector<Point2d<double>> parts;
+    std::vector<bool> isPresent;
 };
