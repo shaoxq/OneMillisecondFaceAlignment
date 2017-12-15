@@ -160,6 +160,7 @@ public:
     size_t imageIdx;
     std::vector<Rectangle> rect;
     std::vector<float> targetShape;
+    // isVisible or isNotOccluded
     std::vector<bool> isPresent;
 
     std::vector<float> currentShape;
