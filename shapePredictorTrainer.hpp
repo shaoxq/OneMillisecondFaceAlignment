@@ -42,9 +42,14 @@ public:
         std::vector<std::vector<Point2d<float>>> pixelCoordinates = randomlySamplePixelCoordinates(initialShape);
 
         std::vector<std::vector<regressionTree>> forests(cascadeDepth);
-        for ( size_t cascade = 0; cascade < cascadeDepth; cascade++ ){
+        for (size_t cascade = 0; cascade < cascadeDepth; cascade++) {
             std::vector<size_t> anchorIdx;
             std::vector<Point2d<float>> deltas;
+            createShapeRelativeEncoding(initialShape,pixelCoordinates[cascadeDepth],anchorIdx,deltas);
+
+            for (size_t i = 0; i < samples.size(); i++) {
+                extractFeaturePixelValues(images[samples[i].imageIdx],samples[i].rect,samples[i].currentShape,initialShape,anchorIdx,deltas,samples[i].featurePixelValues);
+            }
 
         }
     }

@@ -75,3 +75,7 @@ PointTransformAffine findAffineTransform (const std::vector<Point2d<T>>& fromPoi
 
     return tform;
 }
+
+void extractFeaturePixelValues(const Image& img, const Rectangle& rect, const std::vector<Point2d<float>>& currentShape, const std::vector<Point2d<float>>& referehceShape, const std::vector<size_t>& referencePixelAnchorIdx, const std::vector<Point2d<float>>& referencePixelDeltas, std::vector<unsigned char>& featurePixelValues) {
+    
+}
