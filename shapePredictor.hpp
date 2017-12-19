@@ -11,10 +11,34 @@ inline void createShapeRelativeEncoding(const std::vector<Point2d<float>>& shape
     }
 }
 
+inline PointTransformAffine unnormalizingTform(const Rectangle& rect) {
+    std::vector<Point2d<double>> fromPoints(4);
+    fromPoints[0].x = 0.0;
+    fromPoints[0].y = 0.0;
+    fromPoints[1].x = 1.0;
+    fromPoints[1].y = 0.0;
+    fromPoints[2].x = 0.0;
+    fromPoints[2].y = 1.0;
+    fromPoints[3].x = 1.0;
+    fromPoints[3].y = 1.0;
+
+    std::vector<Point2d<double>> toPoints(4);
+    toPoints[0].x = rect.leftTop.x;
+    toPoints[0].y = rect.leftTop.y;
+    toPoints[1].x = rect.rightBottom.x;
+    toPoints[1].y = rect.leftTop.y;
+    toPoints[2].x = rect.leftTop.x;
+    toPoints[2].y = rect.rightBottom.y;
+    toPoints[3].x = rect.rightBottom.x;
+    toPoints[3].y = rect.rightBottom.y;
+
+    return findAffine(fromPoints, toPoints);
+}
+
 
 // This is the implementation of "Appendix D Aligning Two Shapes" of "An Introduction to Active Shape Models" paper.
 template <typename T>
-PointTransformAffine findAffineTransform (const std::vector<Point2d<T>>& fromPoints, const std::vector<Point2d<T>>& toPoints) {
+PointTransformAffine findAffineTransform(const std::vector<Point2d<T>>& fromPoints, const std::vector<Point2d<T>>& toPoints) {
     assert(fromPoints.size() == toPoints.size());
 
     size_t pointsNum = fromPoints.size();
@@ -77,5 +101,6 @@ PointTransformAffine findAffineTransform (const std::vector<Point2d<T>>& fromPoi
 }
 
 void extractFeaturePixelValues(const Image& img, const Rectangle& rect, const std::vector<Point2d<float>>& currentShape, const std::vector<Point2d<float>>& referehceShape, const std::vector<size_t>& referencePixelAnchorIdx, const std::vector<Point2d<float>>& referencePixelDeltas, std::vector<unsigned char>& featurePixelValues) {
-    
+    const PointTransformAffine tform = findAffineTransform(referenceShape, currentShape);
+    const rectangleArea
 }
