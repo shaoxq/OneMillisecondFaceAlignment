@@ -203,18 +203,4 @@ public:
     std::vector<unsigned char> featurePixelValues;
 };
 
-class PointTransformAffine {
-public:
-    PointTransformAffine() {
-        m = std::vector<std::vector<double>>(2,std::vector<double>(2,0));
-        b = std::vector<double>(2,0);
-        s = 1.0;
-    }
-    // rotation matrix
-    std::vector<std::vector<double>> m;
-    // scaling factor
-    double s;
-    // translation vector;
-    std::vector<double> b;
-};
 

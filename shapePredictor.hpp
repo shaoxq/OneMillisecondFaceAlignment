@@ -3,6 +3,22 @@
 #include <vector>
 #include "point.hpp"
 
+class PointTransformAffine {
+public:
+    PointTransformAffine() {
+        m = std::vector<std::vector<double>>(2,std::vector<double>(2,0));
+        b = std::vector<double>(2,0);
+        s = 1.0;
+    }
+    // rotation matrix
+    std::vector<std::vector<double>> m;
+    // scaling factor
+    double s;
+    // translation vector;
+    std::vector<double> b;
+};
+
+
 inline void createShapeRelativeEncoding(const std::vector<Point2d<float>>& shape, const std::vector<Point2d<float>>& pixelCoordinates, std::vector<size_t>& anchorIdx, std::vector<Point2d<float>>& deltas) {
     for (size_t i = 1; i < pixelCoordinates.size(); i++) {
         anchorIdx[i] = nearestShapePoint(shape,pixelCoordinates[i];
@@ -102,5 +118,27 @@ PointTransformAffine findAffineTransform(const std::vector<Point2d<T>>& fromPoin
 
 void extractFeaturePixelValues(const Image& img, const Rectangle& rect, const std::vector<Point2d<float>>& currentShape, const std::vector<Point2d<float>>& referehceShape, const std::vector<size_t>& referencePixelAnchorIdx, const std::vector<Point2d<float>>& referencePixelDeltas, std::vector<unsigned char>& featurePixelValues) {
     const PointTransformAffine tform = findAffineTransform(referenceShape, currentShape);
-    const rectangleArea
+    const Rectangle area;
+    area.leftTop.x = 0.0;
+    area.leftTop.y = 0.0;
+    area.rightBottom.x = img.col-1;
+    area.rightBottom.y = img.row-1;
+
+    for (size_t i = 0; i < referencePixelDeltas.size(); i++) {
+        Point2d<float> d;
+        d.x = referencePixelDeltax[i].x;
+        d.y = referencePixelDeltax[i].y;
+
+        size_t idx = referencePixelAnchorIdx[i];
+
+        Point2d<float> p;
+        p.x = tform.s*(tform.m[0][0]*d.x+tform.m[0][1]*d.y) + currentShape[idx].x;
+        p.y = tform.s*(tform.m[1][0]*d.x+tform.m[1][1]*d.y) + currentShape[idx].y;
+
+        if (0 < p.x && p.x < img.col-1 && 0 < p.y && img.row-1) {
+            featurePixelValues[i] = img.data[p.y][p.x][0];
+        } else {
+            featurePixelValues[i] = 0;
+        }
+    }
 }
