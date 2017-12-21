@@ -51,6 +51,9 @@ public:
                 extractFeaturePixelValues(images[samples[i].imageIdx],samples[i].rect,samples[i].currentShape,initialShape,anchorIdx,deltas,samples[i].featurePixelValues);
             }
 
+            for (size_t i = 0; i < numTreesPerCascadeLevel; i++) {
+                forests[cascade].push_back(makeRegressionTree(samples, pixelCoordinates[cascade]);
+            }
         }
     }
 
@@ -175,6 +178,14 @@ public:
 
         return pixelCoordinates;
     }
+
+    RegressionTree makeRegressionTree(std::vector<trainingSample>& samples, const std::vector<std::vector<Point2d<float>>& pixelCoordinates) {
+        RegressionTree tree;
+
+        const size_t numSplitsNodes = std::pow(2,treeDepth-1);
+        std::vector<Point2d<float>> sums(numSplits*2+1)
+
+    };
 
 private:
     size_t cascadeDepth;
