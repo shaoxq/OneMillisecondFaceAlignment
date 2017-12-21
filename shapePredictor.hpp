@@ -18,6 +18,19 @@ public:
     std::vector<double> b;
 };
 
+class SplitFeature {
+public:
+    size_t idx1;
+    size_t idx2;
+    float threshold;
+};
+
+class RegressionTree {
+public:
+    std::vector<SplitFeature> splits;
+    std::vector<Point2d<float>> leafValues;
+};
+
 
 inline void createShapeRelativeEncoding(const std::vector<Point2d<float>>& shape, const std::vector<Point2d<float>>& pixelCoordinates, std::vector<size_t>& anchorIdx, std::vector<Point2d<float>>& deltas) {
     for (size_t i = 1; i < pixelCoordinates.size(); i++) {
