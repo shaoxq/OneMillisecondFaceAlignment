@@ -183,7 +183,20 @@ public:
         RegressionTree tree;
 
         const size_t numSplitsNodes = std::pow(2,treeDepth-1);
-        std::vector<Point2d<float>> sums(numSplits*2+1)
+        std::vector<Point2d<float>> sums(numSplits*2+1);
+
+        RegressionTree tree;
+
+        for (size_t i = 0; i < samples.size(); i++) {
+            samples[i].diffShape.x = samples[i].targetShape.x - samples[i].currentShape.x;
+            samples[i].diffShape.y = samples[i].targetShape.y - samples[i].currentShape.y;
+            sums[0].x += samples[i].diffShape.x;
+            sums[0].y += samples[i].diffShape.y;
+        }
+
+        for (size_t i = 0; i < numSplitNodes; i++) {
+            
+        }
 
     };
 
