@@ -197,8 +197,14 @@ public:
         for (size_t i = 0; i < numSplitNodes; i++) {
             
         }
+    }
 
-    };
+    splitFeature generateSplit(const std::vector<trainingSample>& samples, size_t begin, size_t end, const std::vector<std::vector<Point2d<float>> pixelCoordinates, const std::vector<double>& sum, std::vector<double>& leftSum, std::vector<double>& rightSum ){
+        std::vector<splitFeature> feats;
+    }
+};
+
+
 
 private:
     size_t cascadeDepth;
@@ -208,6 +214,7 @@ private:
     size_t oversamplingAmount;
     size_t featurePoolSize;
     double lambda;
+    size_t numTestSplits;
 };
 
 class TrainingSample {
