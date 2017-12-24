@@ -199,7 +199,27 @@ public:
         }
     }
 
-    splitFeature generateSplit(const std::vector<trainingSample>& samples, size_t begin, size_t end, const std::vector<std::vector<Point2d<float>> pixelCoordinates, const std::vector<double>& sum, std::vector<double>& leftSum, std::vector<double>& rightSum ){
+    splitFeature randomlyGeneratedSplitFeature(const std::vector<std::vector<Point2d<float>>>& pixelCoordinates) {
+        random_device rnd;
+        mt19937 mt(rnd());
+        uniform_real_distribution<double> norm( 0.0, 1.0 );
+
+        splitFeature feat;
+        double acceptProb;
+        do {
+            feat.idx1 = mt() % featurePoolSize;
+            feat.idx2 = mt() % featurePoolSize;
+            Point2d<float> diff;
+            diff.x = pixelCoordinates[feat.idx1].x-pixelCoordinates[feat.idx2].x;
+            diff.y = pixelCoordinates[feat.idx1].y-pixelCoordinates[feat.idx2].y;
+            double dist = diff.x * diff.x - diff.y * diff.y;
+            acceptProb = std::exp(-dist/lambda);
+        } while(feat.idx1 == feat.idx2 || acceptProb <= norm(mt));
+
+        return feat;
+    }
+
+    splitFeature generateSplit(const std::vector<trainingSample>& samples, size_t begin, size_t end, const std::vector<std::vector<Point2d<float>> pixelCoordinates, const std::vector<double>& sum, std::vector<double>& leftSum, std::vector<double>& rightSum) {
         std::vector<splitFeature> feats;
     }
 };
