@@ -221,6 +221,9 @@ public:
 
     splitFeature generateSplit(const std::vector<trainingSample>& samples, size_t begin, size_t end, const std::vector<std::vector<Point2d<float>> pixelCoordinates, const std::vector<double>& sum, std::vector<double>& leftSum, std::vector<double>& rightSum) {
         std::vector<splitFeature> feats;
+        for (size_t i = 0; i < numTestSplits; i++) {
+            feats.push_back(randomlyGenerateSplitFeature(pixelCoordinates));
+        }
     }
 };
 
