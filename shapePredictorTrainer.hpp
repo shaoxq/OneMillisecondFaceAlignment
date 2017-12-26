@@ -225,6 +225,18 @@ public:
             feats.push_back(randomlyGenerateSplitFeature(pixelCoordinates));
         }
     }
+
+    std::vector<Point2d<float>> leftSums(numTestSplits);
+    std::vector<size_t> leftCnt(numTestSplits);
+
+    for (size_t i = 0; i < feats.size(); i++) {
+        for (size_t j = 0; j < samples.size(); j++) {
+            if ((float)samples[j].featurePixelValues[feats[i].idx] - (float)samples[j].featurePixelValues[feats[i].idx2] > feats[i].threshold) {
+                leftSums[i] += samples[j].diffShape;
+                leftCnt[i]++;
+            }
+        }
+    }
 };
 
 
