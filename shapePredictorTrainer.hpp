@@ -226,7 +226,7 @@ public:
         }
     }
 
-    std::vector<Point2d<float>> leftSums(numTestSplits);
+    std::vector<std::vector<float>> leftSums(numTestSplits,std::vector<float>(feats.size(),0));
     std::vector<size_t> leftCnt(numTestSplits);
 
     for (size_t i = 0; i < feats.size(); i++) {
@@ -237,6 +237,34 @@ public:
             }
         }
     }
+
+    double bestScore = -1.0;
+    size_t bestFeat = 0.0;
+    std::vector<std::vector<float>> temp(numTestSplits,std::vector<float>(feats.size(),0));
+    for (size_t i = 0; i < numTestSplits; i++) {
+        for (size_t j = 0; j < feats.size(); j++) {
+            temp[i][j] = sum[i][j] - leftSums[i][j];
+        }
+        double dotLeftSums = 0.0;
+        double dotTemp = 0.0;
+        for (size_t j = 0; j < feats.size(); j++) {
+            dotLeftSums += leftSums[i][j]*leftSums[i][j];
+            dotTemp += leftTemp[i][j]*leftTemp[i][j];
+        }
+        size_t rightCnt = end-begin-leftCnt[i];
+        double score = dotLeftSums/leftCnt[i] + dotTemp/rightCnt;
+        if (score > bestScore) {
+            bestScore = score;
+            bestFeat = i;
+        }
+
+        leftSum = leftSums[bestFeat];
+        for (size_t i = 0; i < numTestSplits; i++) {
+            rightSum[i] = sum[i][bestFeat] - leftSum[i];
+        }
+    }
+
+    return feats[bestBeat];
 };
 
 
