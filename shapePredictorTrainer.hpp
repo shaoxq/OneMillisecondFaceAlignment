@@ -196,6 +196,7 @@ public:
 
         for (size_t i = 0; i < numSplitNodes; i++) {
             splitFeature split = generateSplit( samples, pixelCoordinates, sums[i], sums[leftChild(i)], sums[rightChild(i)];
+            tree.splits.push_back(split);
         }
     }
 
