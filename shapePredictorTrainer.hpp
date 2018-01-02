@@ -195,10 +195,13 @@ public:
         }
 
         for (size_t i = 0; i < numSplitNodes; i++) {
-            splitFeature split = generateSplit( samples, pixelCoordinates, sums[i], sums[leftChild(i)], sums[rightChild(i)];
+            splitFeature split = generateSplit(samples, pixelCoordinates, sums[i], sums[leftChild(i)], sums[rightChild(i)]);
             tree.splits.push_back(split);
             const size_t mid = partitionSamples(split, samples);
         }
+    }
+
+    size_t partitionSamples(splitFeature& split, std::vector<trainingSample& samples, size_t begin, size_t end) {
     }
 
     splitFeature randomlyGeneratedSplitFeature(const std::vector<std::vector<Point2d<float>>>& pixelCoordinates) {
@@ -267,7 +270,7 @@ public:
     }
 
     return feats[bestBeat];
-};
+    }
 
 
 
